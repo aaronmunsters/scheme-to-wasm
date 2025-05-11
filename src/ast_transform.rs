@@ -21,7 +21,7 @@ where
     E: std::error::Error,
     G: Fn(&Type) -> Option<Result<Type, E>> + Copy,
 {
-    if let Some(ttype) = transform_type(&typ) {
+    if let Some(ttype) = transform_type(typ) {
         return ttype;
     }
     match typ {
@@ -69,7 +69,7 @@ where
 {
     types
         .iter()
-        .map(|typ| Ok(transform_type_recursive(typ, transform_type)?))
+        .map(|typ| transform_type_recursive(typ, transform_type))
         .collect()
 }
 
@@ -108,7 +108,7 @@ where
 {
     // If the user's custom `transform_exp` function has a special way to
     // transform the provided node, then let's return that value.
-    if let Some(transformed_exp) = transform_exp(&exp) {
+    if let Some(transformed_exp) = transform_exp(exp) {
         return transformed_exp;
     }
     // Otherwise, recurse normally according to the individual structures.
@@ -275,9 +275,7 @@ where
             let tkey_type = match trecord.typ.clone() {
                 Type::Record(fields) => {
                     let matches: Vector<(String, Type)> = fields
-                        .iter()
-                        .cloned()
-                        .filter(|pair| pair.0 == *key)
+                        .iter().filter(|&pair| pair.0 == *key).cloned()
                         .collect();
                     if matches.is_empty() {
                         return Err(E::from("Key in record-get not found in record."));
@@ -350,7 +348,7 @@ where
         .map(|(name, func)| {
             Ok((
                 name.clone(),
-                transform_typed_exp_recursive(&func, transform_exp, transform_type)?,
+                transform_typed_exp_recursive(func, transform_exp, transform_type)?,
             ))
         })
         .collect::<Result<Vector<(String, TypedExpr)>, E>>()?;

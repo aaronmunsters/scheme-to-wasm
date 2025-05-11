@@ -108,7 +108,7 @@ fn re_helper(exp: &TypedExpr) -> Option<Result<TypedExpr, RecordElimError>> {
             )))
         }
         ExprKind::RecordGet(record, key) => {
-            let tuple = match record_elim_exp(&record) {
+            let tuple = match record_elim_exp(record) {
                 Ok(val) => val,
                 Err(e) => return Some(Err(e)),
             };

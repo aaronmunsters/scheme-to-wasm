@@ -55,7 +55,7 @@ fn test_lambda_lift_simple_happy() {
     let prog = lambda_lift(&exp).unwrap();
     assert_eq!(prog.fns, expected_prog.fns);
     assert_eq!(prog.exp, expected_prog.exp);
-    assert_eq!(type_check_prog(&prog).is_err(), false);
+    assert!(type_check_prog(&prog).is_ok());
 }
 
 #[test]
@@ -91,7 +91,7 @@ fn test_lambda_lift_nested_lambdas_happy() {
     let prog = lambda_lift(&cc_exp).unwrap();
     assert_eq!(prog.fns.len(), 2);
     assert_eq!(prog.exp, expected_exp);
-    assert_eq!(type_check_prog(&prog).is_err(), false);
+    assert!(type_check_prog(&prog).is_ok());
 }
 
 #[test]
@@ -107,9 +107,9 @@ fn test_typecheck_prog_happy() {
     )
     .unwrap();
     let cc_exp = closure_convert(&exp).unwrap();
-    assert_eq!(type_check(&cc_exp).is_err(), false);
+    assert!(type_check(&cc_exp).is_ok());
     let prog = lambda_lift(&cc_exp).unwrap();
-    assert_eq!(type_check_prog(&prog).is_err(), false);
+    assert!(type_check_prog(&prog).is_ok());
 }
 
 #[test]
@@ -127,5 +127,5 @@ fn test_typecheck_prog_sad() {
     )
     .unwrap();
     let prog = lambda_lift(&exp).unwrap();
-    assert_eq!(type_check_prog(&prog).is_err(), true);
+    assert!(type_check_prog(&prog).is_err());
 }

@@ -180,7 +180,7 @@ fn gen_instr_begin(
         begin_instr.append(&mut exp_instr);
         begin_instr.push(Instruction::Drop);
     }
-    let mut last_exp_instr = gen_instr(&last_exp, state)?;
+    let mut last_exp_instr = gen_instr(last_exp, state)?;
     begin_instr.append(&mut last_exp_instr);
     Ok(begin_instr)
 }
@@ -197,7 +197,7 @@ fn gen_instr_set(
     let local_idx = *(state
         .locals
         .get(sym)
-        .ok_or_else(|| "Symbol not found within local scope.")?);
+        .ok_or("Symbol not found within local scope.")?);
     let mut set_instr = gen_instr(exp, state)?;
     // WebAssembly's TeeLocal instruction will put a copy of the local
     // variable's value on top of the stack.
@@ -531,9 +531,9 @@ pub fn gen_instr(
                 }
             },
         },
-        ExprKind::Binop(op, arg1, arg2) => Ok(gen_instr_binop(*op, &arg1, &arg2, state)?),
-        ExprKind::If(pred, cons, alt) => Ok(gen_instr_if(&pred, &cons, &alt, state)?),
-        ExprKind::Let(bindings, body) => Ok(gen_instr_let(&bindings, &body, state)?),
+        ExprKind::Binop(op, arg1, arg2) => Ok(gen_instr_binop(*op, arg1, arg2, state)?),
+        ExprKind::If(pred, cons, alt) => Ok(gen_instr_if(pred, cons, alt, state)?),
+        ExprKind::Let(bindings, body) => Ok(gen_instr_let(bindings, body, state)?),
         ExprKind::Lambda(_params, _ret_type, _body) => Err(CodeGenerateError::from(
             "Lambda expressions should have been hoisted to the top level via lambda lifting pass.",
         )),
@@ -543,22 +543,22 @@ pub fn gen_instr(
         ExprKind::RecordGet(_record, _key) => Err(CodeGenerateError::from(
             "Record expressions should be removed via record conversion pass.",
         )),
-        ExprKind::Begin(exps) => Ok(gen_instr_begin(&exps, state)?),
-        ExprKind::Set(sym, exp) => Ok(gen_instr_set(&sym, &exp, state)?),
-        ExprKind::Cons(first, rest) => Ok(gen_instr_cons(&first, &rest, state)?),
-        ExprKind::Car(cons) => Ok(gen_instr_car(&cons, state)?),
-        ExprKind::Cdr(cons) => Ok(gen_instr_cdr(&cons, state)?),
-        ExprKind::IsNull(exp) => Ok(gen_instr_is_null(&exp, state)?),
-        ExprKind::Null(typ) => Ok(gen_instr_null(&typ, state)?),
-        ExprKind::Tuple(exps) => Ok(gen_instr_tuple(&exps, state)?),
-        ExprKind::TupleGet(tup, key) => Ok(gen_instr_tuple_get(&tup, *key, state)?),
-        ExprKind::Pack(val, sub, exist) => Ok(gen_instr_pack(&val, &sub, &exist, state)?),
+        ExprKind::Begin(exps) => Ok(gen_instr_begin(exps, state)?),
+        ExprKind::Set(sym, exp) => Ok(gen_instr_set(sym, exp, state)?),
+        ExprKind::Cons(first, rest) => Ok(gen_instr_cons(first, rest, state)?),
+        ExprKind::Car(cons) => Ok(gen_instr_car(cons, state)?),
+        ExprKind::Cdr(cons) => Ok(gen_instr_cdr(cons, state)?),
+        ExprKind::IsNull(exp) => Ok(gen_instr_is_null(exp, state)?),
+        ExprKind::Null(typ) => Ok(gen_instr_null(typ, state)?),
+        ExprKind::Tuple(exps) => Ok(gen_instr_tuple(exps, state)?),
+        ExprKind::TupleGet(tup, key) => Ok(gen_instr_tuple_get(tup, *key, state)?),
+        ExprKind::Pack(val, sub, exist) => Ok(gen_instr_pack(val, sub, exist, state)?),
         ExprKind::Unpack(var, package, type_sub, body) => {
-            Ok(gen_instr_unpack(&var, &package, *type_sub, &body, state)?)
+            Ok(gen_instr_unpack(var, package, *type_sub, body, state)?)
         }
-        ExprKind::FnApp(func, args) => Ok(gen_instr_fn_app(&func, &args, state)?),
+        ExprKind::FnApp(func, args) => Ok(gen_instr_fn_app(func, args, state)?),
     };
-    Ok(instructions?)
+    instructions
 }
 
 /// Construct a WebAssembly module.
@@ -572,8 +572,7 @@ pub fn construct_module(
     mut instructions: Instructions,
 ) -> builder::ModuleBuilder {
     // Construct the list of WebAssembly parameter types
-    let wasm_param_types = std::iter::repeat(ValueType::I32)
-        .take(param_types.len())
+    let wasm_param_types = std::iter::repeat_n(ValueType::I32, param_types.len())
         .collect::<Vec<ValueType>>();
 
     // Construct the list of WebAssembly local types
@@ -627,8 +626,7 @@ pub fn construct_module_from_prog(prog: &Prog<TypedExpr>) -> Result<Module, Code
     for i in 0..=8 {
         let func_sig = builder::signature()
             .with_params(
-                std::iter::repeat(ValueType::I32)
-                    .take(i)
+                std::iter::repeat_n(ValueType::I32, i)
                     .collect::<Vec<ValueType>>(),
             )
             .with_result(ValueType::I32)
@@ -656,7 +654,7 @@ pub fn construct_module_from_prog(prog: &Prog<TypedExpr>) -> Result<Module, Code
                     state.locals.insert(name.clone(), local_index);
                 });
 
-                let func_instructions = gen_instr(&body, &mut state).unwrap();
+                let func_instructions = gen_instr(body, &mut state).unwrap();
                 let wasm_function = construct_function(
                     param_types,
                     Instructions::new(func_instructions),
@@ -733,8 +731,7 @@ fn construct_function(
     state: &mut CodeGenerateState,
 ) -> builder::FunctionDefinition {
     // Construct the list of WebAssembly parameter types
-    let wasm_param_types = std::iter::repeat(ValueType::I32)
-        .take(param_types.len())
+    let wasm_param_types = std::iter::repeat_n(ValueType::I32, param_types.len())
         .collect::<Vec<ValueType>>();
 
     let wasm_locals = construct_locals(&state.locals);
@@ -761,7 +758,6 @@ fn construct_function(
 /// into a format accepted by the `parity_wasm` library's `FunctionBuilder`
 /// API.
 fn construct_locals(locals: &LocalsMap) -> Vec<Local> {
-    std::iter::repeat(Local::new(1, ValueType::I32))
-        .take(locals.len())
+    std::iter::repeat_n(Local::new(1, ValueType::I32), locals.len())
         .collect::<Vec<Local>>()
 }

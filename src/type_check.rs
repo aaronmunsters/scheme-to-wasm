@@ -43,8 +43,7 @@ pub fn validate_lambda_type(
             }
         }
         _ => Err(TypeCheckError(format!(
-            "Expected a function type, instead found {}",
-            fn_type
+            "Expected a function type, instead found {fn_type}"
         ))),
     }
 }
@@ -198,7 +197,7 @@ fn tc_set_bang_with_env(
 ) -> Result<TypedExpr, TypeCheckError> {
     let expected_typ = env
         .find(var)
-        .ok_or_else(|| "Variable in set! cannot be found within the local scope - the variable must already be defined by a function parameter or a let expression.")?
+        .ok_or("Variable in set! cannot be found within the local scope - the variable must already be defined by a function parameter or a let expression.")?
         .clone();
     let new_val = tc_with_env(new_val, env)?;
     if new_val.typ == expected_typ {
@@ -316,9 +315,7 @@ fn tc_record_get_with_env(
     match typed_record.typ.clone() {
         Type::Record(fields) => {
             let matches: Vector<(String, Type)> = fields
-                .iter()
-                .cloned()
-                .filter(|pair| pair.0 == *key)
+                .iter().filter(|&pair| pair.0 == *key).cloned()
                 .collect();
             if matches.is_empty() {
                 return Err(TypeCheckError::from(
@@ -343,7 +340,7 @@ fn tc_apply_with_env(
     env: &TypeEnv,
 ) -> Result<TypedExpr, TypeCheckError> {
     let func = tc_with_env(func, env)?;
-    let typed_args = tc_array_with_env(&args, env)?;
+    let typed_args = tc_array_with_env(args, env)?;
     let arg_types = typed_args
         .iter()
         .map(|typed_exp| typed_exp.typ.clone())
@@ -449,37 +446,36 @@ pub fn tc_with_env(value: &Expr, env: &TypeEnv) -> Result<TypedExpr, TypeCheckEr
             let typ = match env.find(sym.as_str()) {
                 Some(val) => Ok(val.clone()),
                 None => Err(TypeCheckError(format!(
-                    "Not a recognized function name: {}.",
-                    sym
+                    "Not a recognized function name: {sym}."
                 ))),
             }?;
             Ok(TypedExpr::new(typ, ExprKind::Id(sym.clone())))
         }
-        ExprKind::Binop(op, arg1, arg2) => tc_binop_with_env(*op, &arg1, &arg2, env),
-        ExprKind::If(pred, cons, alt) => tc_if_with_env(&pred, &cons, &alt, env),
-        ExprKind::Let(bindings, body) => tc_let_with_env(&bindings, &body, env),
+        ExprKind::Binop(op, arg1, arg2) => tc_binop_with_env(*op, arg1, arg2, env),
+        ExprKind::If(pred, cons, alt) => tc_if_with_env(pred, cons, alt, env),
+        ExprKind::Let(bindings, body) => tc_let_with_env(bindings, body, env),
         ExprKind::Lambda(params, ret_typ, body) => {
-            tc_lambda_with_env(&params, &ret_typ, &body, env)
+            tc_lambda_with_env(params, ret_typ, body, env)
         }
-        ExprKind::Record(bindings) => tc_record_with_env(&bindings, env),
-        ExprKind::RecordGet(record, key) => tc_record_get_with_env(&record, &key, env),
-        ExprKind::Begin(exps) => tc_begin_with_env(&exps, env),
-        ExprKind::Set(sym, exp) => tc_set_bang_with_env(&sym, &exp, env),
-        ExprKind::Cons(first, rest) => tc_cons_with_env(&first, &rest, env),
-        ExprKind::Car(exp) => tc_car_with_env(&exp, env),
-        ExprKind::Cdr(exp) => tc_cdr_with_env(&exp, env),
-        ExprKind::IsNull(exp) => tc_is_null_with_env(&exp, env),
+        ExprKind::Record(bindings) => tc_record_with_env(bindings, env),
+        ExprKind::RecordGet(record, key) => tc_record_get_with_env(record, key, env),
+        ExprKind::Begin(exps) => tc_begin_with_env(exps, env),
+        ExprKind::Set(sym, exp) => tc_set_bang_with_env(sym, exp, env),
+        ExprKind::Cons(first, rest) => tc_cons_with_env(first, rest, env),
+        ExprKind::Car(exp) => tc_car_with_env(exp, env),
+        ExprKind::Cdr(exp) => tc_cdr_with_env(exp, env),
+        ExprKind::IsNull(exp) => tc_is_null_with_env(exp, env),
         ExprKind::Null(typ) => Ok(TypedExpr {
             typ: Type::List(Box::new(typ.clone())),
             kind: Box::new(ExprKind::Null(typ.clone())),
         }),
-        ExprKind::Tuple(exps) => tc_tuple_with_env(&exps, env),
-        ExprKind::TupleGet(tup, key) => tc_tuple_get_with_env(&tup, *key, env),
-        ExprKind::Pack(val, sub, exist) => tc_pack_with_env(&val, &sub, &exist, env),
+        ExprKind::Tuple(exps) => tc_tuple_with_env(exps, env),
+        ExprKind::TupleGet(tup, key) => tc_tuple_get_with_env(tup, *key, env),
+        ExprKind::Pack(val, sub, exist) => tc_pack_with_env(val, sub, exist, env),
         ExprKind::Unpack(var, package, type_sub, body) => {
-            tc_unpack_with_env(&var, &package, *type_sub, &body, env)
+            tc_unpack_with_env(var, package, *type_sub, body, env)
         }
-        ExprKind::FnApp(func, args) => tc_apply_with_env(&func, &args, env),
+        ExprKind::FnApp(func, args) => tc_apply_with_env(func, args, env),
     }
 }
 

@@ -16,9 +16,9 @@ use crate::type_check::{type_check, type_check_prog};
 pub fn compile_exp(exp: &Expr) -> Result<Prog<TypedExpr>, Box<dyn std::error::Error>> {
     // the type information is not currently used for closure conversion, but
     // we want to type check just to catch errors early on
-    type_check(&exp)?;
+    type_check(exp)?;
 
-    let cc_exp = closure_convert(&exp)?;
+    let cc_exp = closure_convert(exp)?;
     let prog = lambda_lift(&cc_exp)?;
     let typed_prog = type_check_prog(&prog)?;
     let re_typed_prog = record_elim_prog(&typed_prog)?;

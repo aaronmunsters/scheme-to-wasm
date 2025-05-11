@@ -29,8 +29,8 @@ fn test_runner_exp(exp: Expr, test_name: &str) -> Value {
     output_wasm_to_file(module, test_name);
 
     let import_object = imports! {};
-    let mut engine = wasmer::Engine::default();
-    let module = wasmer::Module::new(&mut engine, &binary).unwrap();
+    let engine = wasmer::Engine::default();
+    let module = wasmer::Module::new(&engine, &binary).unwrap();
     let mut store = Store::default();
     let instance = Instance::new(&mut store, &module, &import_object).unwrap();
     let values = instance
@@ -50,8 +50,8 @@ fn test_runner_prog(prog: Prog<TypedExpr>, test_name: &str) -> Value {
     output_wasm_to_file(module, test_name);
 
     let import_object = imports! {};
-    let mut engine = wasmer::Engine::default();
-    let module = wasmer::Module::new(&mut engine, &binary).unwrap();
+    let engine = wasmer::Engine::default();
+    let module = wasmer::Module::new(&engine, &binary).unwrap();
     let mut store = Store::default();
     let instance = Instance::new(&mut store, &module, &import_object).unwrap();
     let values = instance
@@ -493,8 +493,8 @@ fn test_handwritten_lambda() {
     output_wasm_to_file(module, "handwritten_lambda.wasm");
 
     let import_object = imports! {};
-    let mut engine = wasmer::Engine::default();
-    let module = wasmer::Module::new(&mut engine, &binary).unwrap();
+    let engine = wasmer::Engine::default();
+    let module = wasmer::Module::new(&engine, &binary).unwrap();
     let mut store = Store::default();
     let instance = Instance::new(&mut store, &module, &import_object).unwrap();
     let values = instance
@@ -539,8 +539,8 @@ fn test_handwritten_tuple() {
     output_wasm_to_file(module, "handwritten_tuple.wasm");
 
     let import_object = imports! {};
-    let mut engine = wasmer::Engine::default();
-    let module = wasmer::Module::new(&mut engine, &binary).unwrap();
+    let engine = wasmer::Engine::default();
+    let module = wasmer::Module::new(&engine, &binary).unwrap();
     let mut store = Store::default();
     let instance = Instance::new(&mut store, &module, &import_object).unwrap();
     let values = instance

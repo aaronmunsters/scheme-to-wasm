@@ -164,10 +164,10 @@ impl std::fmt::Display for Type {
             Type::Int => write!(f, "int"),
             Type::Bool => write!(f, "bool"),
             Type::Str => write!(f, "string"),
-            Type::List(typ) => write!(f, "(list {})", typ),
+            Type::List(typ) => write!(f, "(list {typ})"),
             Type::Func(in_typs, ret_typ) => {
                 if in_typs.is_empty() {
-                    write!(f, "(-> {})", ret_typ)
+                    write!(f, "(-> {ret_typ})")
                 } else {
                     write!(f, "(-> {} {})", format_vector(in_typs.clone()), ret_typ)
                 }
@@ -187,8 +187,8 @@ impl std::fmt::Display for Type {
                     write!(f, "(record {})", format_vector(bindings_str_vec))
                 }
             }
-            Type::Exists(typ_var, base) => write!(f, "(exists T{} {})", typ_var, base),
-            Type::TypeVar(id) => write!(f, "T{}", id),
+            Type::Exists(typ_var, base) => write!(f, "(exists T{typ_var} {base})"),
+            Type::TypeVar(id) => write!(f, "T{id}"),
             Type::Unknown => write!(f, "unknown"),
         }
     }

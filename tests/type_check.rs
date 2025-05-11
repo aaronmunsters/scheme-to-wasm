@@ -96,31 +96,31 @@ fn test_typecheck_all_nodes_annotated() {
 fn test_typecheck_binops_sad() {
     let exp = lexpr::from_str("(+ 3 true)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     let exp = lexpr::from_str("(* 3 true)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     let exp = lexpr::from_str(r#"(- false "hello")"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     let exp = lexpr::from_str(r#"(/ "foo" 3)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     let exp = lexpr::from_str(r#"(concat 3 "world")"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     let exp = lexpr::from_str(r#"(and 3 6)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     let exp = lexpr::from_str(r#"(or "hello" "world")"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -179,17 +179,17 @@ fn test_typecheck_lists_sad() {
     // type of car does not match type of cdr
     let exp = lexpr::from_str(r#"(cons "hey" (null int))"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // invalid argument to car
     let exp = lexpr::from_str("(car 3)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // invalid argument to cdr
     let exp = lexpr::from_str("(cdr 3)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -216,22 +216,22 @@ fn test_typecheck_tuples_sad() {
     // key too large
     let exp = lexpr::from_str(r#"(tuple-ref (make-tuple 3 "hello") 2)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // key is not a number
     let exp = lexpr::from_str(r#"(tuple-ref (make-tuple 3 "hello") true)"#).unwrap();
     let parsed = parse(&exp);
-    assert_eq!(parsed.is_err(), true);
+    assert!(parsed.is_err());
 
     // first expression is not a tuple
     let exp = lexpr::from_str(r#"(tuple-ref (cons 3 (null int)) 0)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // tuple is empty, so no tuple-ref should be valid
     let exp = lexpr::from_str(r#"(tuple-ref (make-tuple) 0)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -275,7 +275,7 @@ fn test_typecheck_records_sad() {
     // we don't know what type bar is
     let exp = lexpr::from_str(r#"(make-record (foo bar))"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // TODO: In practice, the compiler should have some kind of check to ensure
     // records are not being constructed with multiple fields of the same name,
@@ -295,12 +295,12 @@ fn test_typecheck_records_sad() {
     // invalid key on record-ref
     let exp = lexpr::from_str(r#"(record-ref (make-record (num 3) (name "hello")) foo)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // non-record expression passed to record-ref
     let exp = lexpr::from_str(r#"(record-ref "hello" foo)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -319,7 +319,7 @@ fn test_typecheck_let_sad() {
     // one variable missing
     let exp = lexpr::from_str("(let ((x 23)) (+ x y))").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -342,17 +342,17 @@ fn test_typecheck_sideeffects_sad() {
     // intermediary expression in begin is not valid
     let exp = lexpr::from_str(r#"(begin (+ 3 "hello") (- 4 1))"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // last expression in begin is not valid
     let exp = lexpr::from_str(r#"(begin (+ 3 4) (- 4 "hello"))"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // using set! before variable is defined
     let exp = lexpr::from_str("(set! x 7)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -371,12 +371,12 @@ fn test_typecheck_local_scoping() {
     // binding from let lasts past its scope
     let exp = lexpr::from_str("(+ (let ((x 5)) (+ x 3)) x)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // binding from lambda lasts past its scope
     let exp = lexpr::from_str("(+ ((lambda ((x : int)) : int x) 3) x)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // let bindings with same names of conflicting types
     let exp = lexpr::from_str("(and (let ((x 5)) (< x 3)) (let ((x false)) (or x true)))").unwrap();
@@ -392,7 +392,7 @@ fn test_typecheck_local_scoping() {
     // using set! after variable goes out of scope
     let exp = lexpr::from_str("(begin (let ((x 3)) (+ x 5)) (set! x 7))").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -407,12 +407,12 @@ fn test_typecheck_if_sad() {
     // invalid predicate
     let exp = lexpr::from_str(r#"(if 3 4 5)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // consequent and alternate do not match
     let exp = lexpr::from_str(r#"(if (< 3 4) "hello" 5)"#).unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -522,12 +522,12 @@ fn test_typecheck_lambda_sad() {
     // mismatched return type
     let exp = lexpr::from_str("(lambda () : bool 3)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // input types do not work in body
     let exp = lexpr::from_str("(lambda ((x : bool) (y : bool)) : int (+ x y))").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -591,29 +591,29 @@ fn test_typecheck_apply_sad() {
     // missing parameters
     let exp = lexpr::from_str("((lambda ((x : int)) : bool (< x 5)))").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // too many parameters
     let exp = lexpr::from_str("((lambda ((x : int)) : bool (< x 5)) 3 5)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // arg type does not match param type
     let exp = lexpr::from_str("((lambda ((x : int)) : bool (< x 5)) true)").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
 fn test_typecheck_pack_happy() {
     // show that multiple types can inhabit an existential type
     let exp = &lexpr::from_str("(pack 3 int (exists T0 T0))").unwrap();
-    let typed_exp = type_check(&parse(&exp).unwrap()).unwrap();
+    let typed_exp = type_check(&parse(exp).unwrap()).unwrap();
     let typ = parse_type(&lexpr::from_str("(exists T0 T0)").unwrap()).unwrap();
     assert_eq!(typed_exp.typ, typ);
 
     let exp = &lexpr::from_str("(pack true bool (exists T0 T0))").unwrap();
-    let typed_exp = type_check(&parse(&exp).unwrap()).unwrap();
+    let typed_exp = type_check(&parse(exp).unwrap()).unwrap();
     let typ = parse_type(&lexpr::from_str("(exists T0 T0)").unwrap()).unwrap();
     assert_eq!(typed_exp.typ, typ);
 
@@ -652,16 +652,16 @@ fn test_typecheck_pack_happy() {
 fn test_typecheck_pack_sad() {
     let exp = lexpr::from_str("(pack true int (exists T0 T0))").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     let exp = lexpr::from_str("(pack 3 int (exists T0 bool))").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     let exp =
         lexpr::from_str("(pack (lambda ((x : int)) : bool 3) int (exists T0 (-> T0 T0)))").unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]
@@ -718,7 +718,7 @@ fn test_typecheck_unpack_sad() {
     )
     .unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 
     // the result type cannot have the type variable free
     let exp = lexpr::from_str(
@@ -735,7 +735,7 @@ fn test_typecheck_unpack_sad() {
     )
     .unwrap();
     let typed_exp = type_check(&parse(&exp).unwrap());
-    assert_eq!(typed_exp.is_err(), true);
+    assert!(typed_exp.is_err());
 }
 
 #[test]

@@ -11,8 +11,8 @@ fn test_record_elim_simple() {
         type_check(&parse(&lexpr::from_str("(make-tuple 3 \"hello\")").unwrap()).unwrap()).unwrap();
     let rc_exp = record_elim_exp(&typed_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Record elimination: {}", rc_exp);
+    println!("Source: {exp}");
+    println!("Record elimination: {rc_exp}");
     assert_eq!(rc_exp, expected_exp);
 }
 
@@ -25,8 +25,8 @@ fn test_record_elim_order_invariant() {
         type_check(&parse(&lexpr::from_str("(make-tuple 3 \"hello\")").unwrap()).unwrap()).unwrap();
     let rc_exp = record_elim_exp(&typed_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Record elimination: {}", rc_exp);
+    println!("Source: {exp}");
+    println!("Record elimination: {rc_exp}");
     assert_eq!(rc_exp, expected_exp);
 }
 
@@ -43,8 +43,8 @@ fn test_record_elim_record_get() {
     .unwrap();
     let rc_exp = record_elim_exp(&typed_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Record elimination: {}", rc_exp);
+    println!("Source: {exp}");
+    println!("Record elimination: {rc_exp}");
     assert_eq!(rc_exp, expected_exp);
 }
 
@@ -85,7 +85,7 @@ fn test_record_elim_complex() {
     .unwrap();
     let rc_exp = record_elim_exp(&typed_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Record elimination: {}", rc_exp);
+    println!("Source: {exp}");
+    println!("Record elimination: {rc_exp}");
     assert_eq!(rc_exp, expected_exp);
 }

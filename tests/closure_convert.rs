@@ -11,7 +11,7 @@ fn test_closure_convert_lambda_no_free_vars() {
 
     let exp = parse(&lexpr::from_str("(lambda ((x : int)) : int (+ x 3))").unwrap()).unwrap();
     let exp_typ = type_check(&exp);
-    assert_eq!(exp_typ.is_err(), false);
+    assert!(exp_typ.is_ok());
 
     let expected_exp = parse(
         &lexpr::from_str(
@@ -29,8 +29,8 @@ fn test_closure_convert_lambda_no_free_vars() {
     let cc_exp = closure_convert(&exp).unwrap();
     type_check(&cc_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Closure converted: {}", cc_exp);
+    println!("Source: {exp}");
+    println!("Closure converted: {cc_exp}");
     assert_eq!(cc_exp, expected_exp);
 }
 
@@ -41,7 +41,7 @@ fn test_closure_convert_apply_lambda_no_free_vars() {
 
     let exp = parse(&lexpr::from_str("((lambda ((x : int)) : int (+ x 3)) 5)").unwrap()).unwrap();
     let exp_typ = type_check(&exp);
-    assert_eq!(exp_typ.is_err(), false);
+    assert!(exp_typ.is_ok());
 
     let expected_exp = parse(
         &lexpr::from_str(
@@ -61,8 +61,8 @@ fn test_closure_convert_apply_lambda_no_free_vars() {
     let cc_exp = closure_convert(&exp).unwrap();
     type_check(&cc_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Closure converted: {}", cc_exp);
+    println!("Source: {exp}");
+    println!("Closure converted: {cc_exp}");
     assert_eq!(cc_exp, expected_exp);
 }
 
@@ -74,7 +74,7 @@ fn test_closure_convert_lambda_yes_free_vars() {
     let exp = parse(&lexpr::from_str("(let ((y 3)) (lambda ((x : int)) : int (+ x y)))").unwrap())
         .unwrap();
     let exp_typ = type_check(&exp);
-    assert_eq!(exp_typ.is_err(), false);
+    assert!(exp_typ.is_ok());
 
     let expected_exp = parse(
         &lexpr::from_str(
@@ -93,8 +93,8 @@ fn test_closure_convert_lambda_yes_free_vars() {
     let cc_exp = closure_convert(&exp).unwrap();
     type_check(&cc_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Closure converted: {}", cc_exp);
+    println!("Source: {exp}");
+    println!("Closure converted: {cc_exp}");
     assert_eq!(cc_exp, expected_exp);
 }
 
@@ -113,7 +113,7 @@ fn test_closure_convert_nested_lets() {
     )
     .unwrap();
     let exp_typ = type_check(&exp);
-    assert_eq!(exp_typ.is_err(), false);
+    assert!(exp_typ.is_ok());
 
     let expected_exp = parse(
         &lexpr::from_str(
@@ -132,8 +132,8 @@ fn test_closure_convert_nested_lets() {
     let cc_exp = closure_convert(&exp).unwrap();
     type_check(&cc_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Closure converted: {}", cc_exp);
+    println!("Source: {exp}");
+    println!("Closure converted: {cc_exp}");
     assert_eq!(cc_exp, expected_exp);
 }
 
@@ -146,7 +146,7 @@ fn test_closure_convert_apply_lambda_yes_free_vars() {
         parse(&lexpr::from_str("(let ((y 4)) ((lambda ((x : int)) : int (+ x y)) 3))").unwrap())
             .unwrap();
     let exp_typ = type_check(&exp);
-    assert_eq!(exp_typ.is_err(), false);
+    assert!(exp_typ.is_ok());
 
     let expected_exp = parse(
         &lexpr::from_str(
@@ -170,8 +170,8 @@ fn test_closure_convert_apply_lambda_yes_free_vars() {
     let cc_exp = closure_convert(&exp).unwrap();
     type_check(&cc_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Closure converted: {}", cc_exp);
+    println!("Source: {exp}");
+    println!("Closure converted: {cc_exp}");
     assert_eq!(cc_exp, expected_exp);
 }
 
@@ -184,7 +184,7 @@ fn test_closure_convert_lambda_by_name() {
         parse(&lexpr::from_str("(let ((f (lambda ((x : int)) : int (+ x 3)))) (f 4))").unwrap())
             .unwrap();
     let exp_typ = type_check(&exp);
-    assert_eq!(exp_typ.is_err(), false);
+    assert!(exp_typ.is_ok());
 
     let expected_exp = parse(
         &lexpr::from_str(
@@ -203,8 +203,8 @@ fn test_closure_convert_lambda_by_name() {
     let cc_exp = closure_convert(&exp).unwrap();
     type_check(&cc_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Closure converted: {}", cc_exp);
+    println!("Source: {exp}");
+    println!("Closure converted: {cc_exp}");
     assert_eq!(cc_exp, expected_exp);
 }
 
@@ -223,7 +223,7 @@ fn test_closure_convert_lambda_with_func_param() {
     )
     .unwrap();
     let exp_typ = type_check(&exp);
-    assert_eq!(exp_typ.is_err(), false);
+    assert!(exp_typ.is_ok());
 
     let expected_exp = parse(
         &lexpr::from_str(
@@ -253,8 +253,8 @@ fn test_closure_convert_lambda_with_func_param() {
     let cc_exp = closure_convert(&exp).unwrap();
     type_check(&cc_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Closure converted: {}", cc_exp);
+    println!("Source: {exp}");
+    println!("Closure converted: {cc_exp}");
     assert_eq!(cc_exp, expected_exp);
 }
 
@@ -273,7 +273,7 @@ fn test_closure_convert_curried_lambda() {
     )
     .unwrap();
     let exp_typ = type_check(&exp);
-    assert_eq!(exp_typ.is_err(), false);
+    assert!(exp_typ.is_ok());
 
     let expected_exp = parse(
         &lexpr::from_str(
@@ -305,7 +305,7 @@ fn test_closure_convert_curried_lambda() {
     let cc_exp = closure_convert(&exp).unwrap();
     type_check(&cc_exp).unwrap();
 
-    println!("Source: {}", exp);
-    println!("Closure converted: {}", cc_exp);
+    println!("Source: {exp}");
+    println!("Closure converted: {cc_exp}");
     assert_eq!(cc_exp, expected_exp);
 }

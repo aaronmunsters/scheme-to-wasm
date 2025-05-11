@@ -83,7 +83,7 @@ impl Expr {
 impl ExprMeta for Expr {
     type ExprType = Expr; // The fact that this works amazes me
     fn kind(&self) -> &ExprKind<Expr> {
-        &*self.kind
+        &self.kind
     }
 }
 
@@ -98,7 +98,7 @@ pub struct TypedExpr {
 impl ExprMeta for TypedExpr {
     type ExprType = TypedExpr;
     fn kind(&self) -> &ExprKind<TypedExpr> {
-        &*self.kind
+        &self.kind
     }
 }
 
@@ -176,8 +176,8 @@ impl Display for TypedExpr {
 impl<E: ExprMeta> Display for ExprKind<E> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ExprKind::Binop(op, exp1, exp2) => write!(f, "({} {} {})", op, exp1, exp2),
-            ExprKind::If(pred, cons, alt) => write!(f, "(if {} {} {})", pred, cons, alt),
+            ExprKind::Binop(op, exp1, exp2) => write!(f, "({op} {exp1} {exp2})"),
+            ExprKind::If(pred, cons, alt) => write!(f, "(if {pred} {cons} {alt})"),
             ExprKind::Let(bindings, body) => {
                 let bindings_str_vec = bindings
                     .iter()
@@ -209,28 +209,28 @@ impl<E: ExprMeta> Display for ExprKind<E> {
                     write!(f, "(make-record {})", format_vector(bindings_str_vec))
                 }
             },
-            ExprKind::RecordGet(record, key) => write!(f, "(record-ref {} {})", record, key),
+            ExprKind::RecordGet(record, key) => write!(f, "(record-ref {record} {key})"),
             ExprKind::Begin(exps) => write!(f, "(begin {})", format_vector(exps.clone())),
-            ExprKind::Set(var_name, exp) => write!(f, "(set! {} {})", var_name, exp),
-            ExprKind::Cons(first, second) => write!(f, "(cons {} {})", first, second),
-            ExprKind::Car(exp) => write!(f, "(car {})", exp),
-            ExprKind::Cdr(exp) => write!(f, "(cdr {})", exp),
-            ExprKind::IsNull(exp) => write!(f, "(null? {})", exp),
-            ExprKind::Null(typ) => write!(f, "(null {})", typ),
+            ExprKind::Set(var_name, exp) => write!(f, "(set! {var_name} {exp})"),
+            ExprKind::Cons(first, second) => write!(f, "(cons {first} {second})"),
+            ExprKind::Car(exp) => write!(f, "(car {exp})"),
+            ExprKind::Cdr(exp) => write!(f, "(cdr {exp})"),
+            ExprKind::IsNull(exp) => write!(f, "(null? {exp})"),
+            ExprKind::Null(typ) => write!(f, "(null {typ})"),
             ExprKind::Tuple(exps) => match exps.len() {
                 0 => write!(f, "(make-tuple)"),
                 _ => write!(f, "(make-tuple {})", format_vector(exps.clone())),
             },
-            ExprKind::TupleGet(tup, key) => write!(f, "(tuple-ref {} {})", tup, key),
+            ExprKind::TupleGet(tup, key) => write!(f, "(tuple-ref {tup} {key})"),
             // TODO: change to (pack type_sub val : exist)?
-            ExprKind::Pack(val, sub, exist) => write!(f, "(pack {} {} {})", val, sub, exist),
+            ExprKind::Pack(val, sub, exist) => write!(f, "(pack {val} {sub} {exist})"),
             ExprKind::Unpack(var, package, type_sub, body) => {
-                write!(f, "(unpack ({} {} T{}) {})", var, package, type_sub, body)
+                write!(f, "(unpack ({var} {package} T{type_sub}) {body})")
             }
-            ExprKind::Id(val) => write!(f, "{}", val),
-            ExprKind::Num(val) => write!(f, "{}", val),
+            ExprKind::Id(val) => write!(f, "{val}"),
+            ExprKind::Num(val) => write!(f, "{val}"),
             ExprKind::Bool(val) => write!(f, "{}", if *val { "true" } else { "false" }),
-            ExprKind::Str(val) => write!(f, "\"{}\"", val),
+            ExprKind::Str(val) => write!(f, "\"{val}\""),
         }
     }
 }
