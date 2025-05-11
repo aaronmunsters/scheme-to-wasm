@@ -11,7 +11,7 @@ use crate::type_check::{type_check, type_check_prog};
 /// separately, using `parse::parse()`.
 ///
 /// TODO: We could return a custom "wrapping" error type instead of
-/// Box<dyn Error>, but I'm not sure if this is necessary or what is
+/// `Box<dyn Error>`, but I'm not sure if this is necessary or what is
 /// best form.
 pub fn compile_exp(exp: &Expr) -> Result<Prog<TypedExpr>, Box<dyn std::error::Error>> {
     // the type information is not currently used for closure conversion, but
