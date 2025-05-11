@@ -1,7 +1,7 @@
 use scheme_to_wasm::common::{Expr, ExprKind, Prog, TypedExpr};
 use scheme_to_wasm::compile::compile_exp;
 use scheme_to_wasm::generate_code::{
-    construct_module, construct_module_from_prog, gen_instr, CodeGenerateState,
+    CodeGenerateState, construct_module, construct_module_from_prog, gen_instr,
 };
 use scheme_to_wasm::parse::parse;
 use scheme_to_wasm::type_check::type_check;
@@ -10,7 +10,7 @@ use scheme_to_wasm::types::Type;
 use im_rc::vector;
 use parity_wasm::builder;
 use parity_wasm::elements::{Instruction, Instructions, Module, ValueType};
-use wasmer_runtime::{imports, instantiate, Value};
+use wasmer::{Instance, Store, Value, imports};
 
 fn output_wasm_to_file(module: Module, test_name: &str) {
     let output_dir = std::env::current_dir().unwrap().join("wasm-output");
@@ -29,8 +29,16 @@ fn test_runner_exp(exp: Expr, test_name: &str) -> Value {
     output_wasm_to_file(module, test_name);
 
     let import_object = imports! {};
-    let instance = instantiate(&binary, &import_object).unwrap();
-    let values = instance.dyn_func("$$MAIN$$").unwrap().call(&[]).unwrap();
+    let mut engine = wasmer::Engine::default();
+    let module = wasmer::Module::new(&mut engine, &binary).unwrap();
+    let mut store = Store::default();
+    let instance = Instance::new(&mut store, &module, &import_object).unwrap();
+    let values = instance
+        .exports
+        .get_function("$$MAIN$$")
+        .unwrap()
+        .call(&mut store, &[])
+        .unwrap();
 
     values[0].clone()
 }
@@ -42,8 +50,16 @@ fn test_runner_prog(prog: Prog<TypedExpr>, test_name: &str) -> Value {
     output_wasm_to_file(module, test_name);
 
     let import_object = imports! {};
-    let instance = instantiate(&binary, &import_object).unwrap();
-    let values = instance.dyn_func("$$MAIN$$").unwrap().call(&[]).unwrap();
+    let mut engine = wasmer::Engine::default();
+    let module = wasmer::Module::new(&mut engine, &binary).unwrap();
+    let mut store = Store::default();
+    let instance = Instance::new(&mut store, &module, &import_object).unwrap();
+    let values = instance
+        .exports
+        .get_function("$$MAIN$$")
+        .unwrap()
+        .call(&mut store, &[])
+        .unwrap();
 
     values[0].clone()
 }
@@ -437,7 +453,7 @@ fn test_handwritten_lambda() {
         .function()
         .signature()
         .with_param(ValueType::I32)
-        .with_return_type(Some(ValueType::I32))
+        .with_result(ValueType::I32)
         .build()
         .body()
         .with_instructions(Instructions::new(vec![
@@ -456,7 +472,7 @@ fn test_handwritten_lambda() {
         // main function
         .function()
         .signature()
-        .with_return_type(Some(ValueType::I32))
+        .with_result(ValueType::I32)
         .build()
         .body()
         .with_instructions(Instructions::new(vec![
@@ -477,8 +493,16 @@ fn test_handwritten_lambda() {
     output_wasm_to_file(module, "handwritten_lambda.wasm");
 
     let import_object = imports! {};
-    let instance = instantiate(&binary, &import_object).unwrap();
-    let values = instance.dyn_func("main").unwrap().call(&[]).unwrap();
+    let mut engine = wasmer::Engine::default();
+    let module = wasmer::Module::new(&mut engine, &binary).unwrap();
+    let mut store = Store::default();
+    let instance = Instance::new(&mut store, &module, &import_object).unwrap();
+    let values = instance
+        .exports
+        .get_function("main")
+        .unwrap()
+        .call(&mut store, &[])
+        .unwrap();
 
     assert_eq!(values[0], Value::I32(6));
 }
@@ -492,7 +516,7 @@ fn test_handwritten_tuple() {
         .build()
         .function()
         .signature()
-        .with_return_type(Some(ValueType::I32))
+        .with_result(ValueType::I32)
         .build()
         .body()
         .with_instructions(Instructions::new(vec![
@@ -515,8 +539,16 @@ fn test_handwritten_tuple() {
     output_wasm_to_file(module, "handwritten_tuple.wasm");
 
     let import_object = imports! {};
-    let instance = instantiate(&binary, &import_object).unwrap();
-    let values = instance.dyn_func("main").unwrap().call(&[]).unwrap();
+    let mut engine = wasmer::Engine::default();
+    let module = wasmer::Module::new(&mut engine, &binary).unwrap();
+    let mut store = Store::default();
+    let instance = Instance::new(&mut store, &module, &import_object).unwrap();
+    let values = instance
+        .exports
+        .get_function("main")
+        .unwrap()
+        .call(&mut store, &[])
+        .unwrap();
 
     assert_eq!(values[0], Value::I32(10));
 }

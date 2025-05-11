@@ -311,7 +311,7 @@ fn gen_instr_tuple_get(
         _ => {
             return Err(CodeGenerateError::from(
                 "get_instr_tuple_get called with non-tuple expression.",
-            ))
+            ));
         }
     }
     Ok([tuple_instr, tuple_get_instr].concat())
@@ -527,7 +527,7 @@ pub fn gen_instr(
                 None => {
                     return Err(CodeGenerateError::from(
                         "Symbol not found in locals or function table.",
-                    ))
+                    ));
                 }
             },
         },
@@ -590,7 +590,7 @@ pub fn construct_module(
         .function()
         .signature()
         .with_params(wasm_param_types)
-        .with_return_type(Some(ValueType::I32))
+        .with_result(ValueType::I32)
         .build()
         .body()
         .with_locals(wasm_locals)
@@ -631,7 +631,7 @@ pub fn construct_module_from_prog(prog: &Prog<TypedExpr>) -> Result<Module, Code
                     .take(i)
                     .collect::<Vec<ValueType>>(),
             )
-            .with_return_type(Some(ValueType::I32))
+            .with_result(ValueType::I32)
             .build_sig();
         let sig_index = module_builder.push_signature(func_sig);
         state.sigs.insert(i as u32, sig_index);
@@ -707,7 +707,7 @@ pub fn construct_module_from_prog(prog: &Prog<TypedExpr>) -> Result<Module, Code
         .function()
         .signature()
         .with_params(vec![])
-        .with_return_type(Some(ValueType::I32))
+        .with_result(ValueType::I32)
         .build()
         .body()
         .with_locals(wasm_locals)
@@ -746,7 +746,7 @@ fn construct_function(
     builder::function()
         .signature()
         .with_params(wasm_param_types)
-        .with_return_type(Some(ValueType::I32))
+        .with_result(ValueType::I32)
         .build()
         .body()
         .with_locals(wasm_locals)

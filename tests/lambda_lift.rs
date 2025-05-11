@@ -1,10 +1,10 @@
 use im_rc::vector;
 use scheme_to_wasm::closure_convert::closure_convert;
-use scheme_to_wasm::common::{dangerously_reset_gensym_count, Prog};
+use scheme_to_wasm::common::{Prog, dangerously_reset_gensym_count};
 use scheme_to_wasm::lambda_lift::lambda_lift;
 use scheme_to_wasm::parse::parse;
 use scheme_to_wasm::type_check::{type_check, type_check_prog};
-use serial_test_derive::serial;
+use serial_test::serial;
 
 #[test]
 #[serial]
